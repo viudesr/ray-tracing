@@ -30,4 +30,7 @@ public:
     double y;
     double z;
 };
+double dot(Vector& A, Vector& B) {
+    return A.x * B.x + A.y * B.y + A.z * B.z;
+};
 #endif
