@@ -4,11 +4,11 @@
 
 class Ray {
 public:
-    Ray(double& Origin, Vector& u) {
+    Ray(Vector& Origin, Vector& u) {
         origin = Origin;
         u = u;
     }
-    double origin;
+    Vector origin;
     Vector u;
 };
 #endif

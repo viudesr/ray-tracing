@@ -13,10 +13,11 @@ std::uniform_real_distribution<double> uniform;
 class Vector {
 public:
     Vector(double x = 0, double y = 0, double z = 0) {
-        x = x;
-        y = y;
-        z = z;
+        this->x = x;
+        this->y = y;
+        this->z = z;
     }
+
     double norm2() {
         return sqr(x) + sqr(y) + sqr(z);
     }
@@ -30,6 +31,16 @@ public:
     double y;
     double z;
 };
+
+Vector operator+(const Vector & A, Vector& B) {
+    return Vector(A.x + B.x, A.y + B.y, A.z + B.z);
+}
+Vector operator-(const Vector & A, Vector& B) {
+    return Vector(A.x - B.x, A.y - B.y, A.z - B.z);
+}
+Vector operator*(const Vector & A, Vector& B) {
+    return Vector(A.x * B.x, A.y * B.y, A.z * B.z);
+}
 double dot(Vector& A, Vector& B) {
     return A.x * B.x + A.y * B.y + A.z * B.z;
 };
