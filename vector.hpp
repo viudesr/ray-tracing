@@ -4,6 +4,7 @@
 #include <random>
 #include <math.h>
 #include <omp.h>
+#include <vector>
 
 static inline double sqr(double x) { return x * x; }
 
@@ -33,21 +34,25 @@ public:
         x += A[0];
         y += A[1];
         z += A[2];
+        return *this;
     }
     Vector& operator += (const double& a) {
         x += a;
         y += a;
         z += a;
+        return *this;
     }
     Vector& operator -= (const Vector& A) {
         x -= A.x;
         y -= A.y;
         z -= A.z;
+        return *this;
     }
     Vector& operator -= (const double& a) {
         x -= a;
         y -= a;
         z -= a;
+        return *this;
     }
 
     double norm2() {
