@@ -19,7 +19,7 @@ int main() {
     int H = 1024;
     std::vector<unsigned char> image(W * H * 3, 0);
 
-    double fov = 55;
+    double fov = 55 * M_PI / 180.;
     double gamma = 2.2;
     Vector camera(0., 0., 55.);
     Scene scene;
@@ -42,7 +42,6 @@ int main() {
             Vector color(0.,0.,0.);
             if (scene.intersect(Ray(camera, u))) {
                 color = Vector(255.,255.,255.);
-                std::cout << "Intersection" << "\n";
             }
 
             image[(i*W + j) * 3 + 0] = color[0];   // RED
