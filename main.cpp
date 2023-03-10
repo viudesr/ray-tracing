@@ -11,7 +11,7 @@
 
 #include "vector.hpp"
 #include "ray.hpp"
-#include "sphere.hpp"
+#include "object.hpp"
 #include "scene.hpp"
 
 int main() {
