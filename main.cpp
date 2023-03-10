@@ -35,9 +35,9 @@ int main() {
             u.normalize();
 
             Vector color(255., 0., 0.);
-            image[(i*W + j) * 3 + 0] = color.x;   // RED
-            image[(i*W + j) * 3 + 1] = color.y;  // GREEN
-            image[(i*W + j) * 3 + 2] = color.z;  // BLUE
+            image[(i*W + j) * 3 + 0] = color[0];   // RED
+            image[(i*W + j) * 3 + 1] = color[1];  // GREEN
+            image[(i*W + j) * 3 + 2] = color[2];  // BLUE
 
         }
     }
