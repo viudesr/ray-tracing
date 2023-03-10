@@ -75,7 +75,7 @@ Vector operator+(const Vector &A, double& b) {
 Vector operator+(double& b, const Vector &A) {
     return Vector(A[0] + b, A[1] + b, A[2] + b);
 }
-Vector operator-(const Vector &A, Vector& B) {
+Vector operator-(const Vector &A, const Vector& B) {
     return Vector(A[0] - B[0], A[1] - B[1], A[2] - B[2]);
 }
 Vector operator-(const Vector &A, double& b) {
@@ -84,7 +84,7 @@ Vector operator-(const Vector &A, double& b) {
 Vector operator-(double& b, const Vector &A) {
     return Vector(b - A[0], b - A[1], b - A[2]);
 }
-Vector operator*(const Vector &A, Vector& B) {
+Vector operator*(const Vector &A, const Vector& B) {
     return Vector(A[0] * B[0], A[1] * B[1], A[2] * B[2]);
 }
 Vector operator*(const Vector &A, double& b) {
@@ -99,7 +99,7 @@ Vector operator/(const Vector &A, double &b) {
 Vector operator/(double &b, const Vector &A) {
     return Vector(b / A[0], b / A[1], b / A[2]);
 }
-double dot(Vector& A, Vector& B) {
+double dot(const Vector& A, const Vector& B) {
     return A[0] * B[0] + A[1] * B[1] + A[2] * B[2];
 };
 #endif

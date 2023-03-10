@@ -6,9 +6,9 @@ class Ray {
 public:
     Ray(Vector& Origin, Vector& u) {
         origin = Origin;
-        u = u;
+        dir = u;
     }
     Vector origin;
-    Vector u;
+    Vector dir;
 };
 #endif
