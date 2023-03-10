@@ -23,8 +23,8 @@ int main() {
     double gamma = 2.2;
     Vector camera(0., 0., 55.);
     Scene scene;
-    Sphere S(Vector(0.,0.,0.), 10.);
-    Sphere S2(Vector(20.,0.,0.), 10.);
+    Sphere S(Vector(0.,0.,0.), 10., Vector(0.9,0.5,0.5));
+    Sphere S2(Vector(20.,0.,0.), 10., Vector(0.3,0.3,0.6));
 
     scene.addSphere(S);
     scene.addSphere(S2);
@@ -39,14 +39,12 @@ int main() {
 
             Vector u(x, y, z);
             u.normalize();
-            Vector color(0.,0.,0.);
-            if (scene.intersect(Ray(camera, u))) {
-                color = Vector(255.,255.,255.);
-            }
 
-            image[(i*W + j) * 3 + 0] = color[0];   // RED
-            image[(i*W + j) * 3 + 1] = color[1];  // GREEN
-            image[(i*W + j) * 3 + 2] = color[2];  // BLUE
+            Vector color = scene.getColor(Ray(camera,u));
+
+            image[(i*W + j) * 3 + 0] = std::min(255., std::max(0., color[0]));   // RED
+            image[(i*W + j) * 3 + 1] = std::min(255., std::max(0., color[1]));  // GREEN
+            image[(i*W + j) * 3 + 2] = std::min(255., std::max(0., color[2]));  // BLUE
 
         }
     }

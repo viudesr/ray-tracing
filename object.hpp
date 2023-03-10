@@ -4,16 +4,17 @@
 
 class Object {
 public:
-    Object() {};
+    Object(const Vector& rho) : rho(rho) {};
 
-    virtual bool intersect(const Ray& ray, double& t) const=0;
+    virtual bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const=0;
+    Vector rho;
 };
 
 class Sphere : public Object {
 public:
-    Sphere(const Vector& O, double r) : origin(O), radius(r) {}
+    Sphere(const Vector& O, double r, const Vector& rho) : Object(rho), origin(O), radius(r) {}
 
-    bool intersect(const Ray& ray, double& t) const {
+    bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const {
         double b = 2 * dot(ray.dir, ray.origin - this->origin);
         double delta =  sqr(b) - 4 * ((ray.origin - this->origin).norm2() - sqr(this->radius));
         if (delta < 0) {
@@ -32,6 +33,10 @@ public:
         else {
             t = t1;
         }
+
+        P = ray.origin + t * ray.dir;
+        N = P - this->origin;
+        N.normalize();
 
         return true;
     }
