@@ -46,9 +46,9 @@ int main() {
 
             Vector color = scene.getColor(Ray(camera,u));
 
-            image[((H - i - 1) * W + j) * 3 + 0] = std::min(255., std::max(0., color[0]));   // RED
-            image[((H - i - 1) * W + j) * 3 + 1] = std::min(255., std::max(0., color[1]));  // GREEN
-            image[((H - i - 1) * W + j) * 3 + 2] = std::min(255., std::max(0., color[2]));  // BLUE
+            image[((H - i - 1) * W + j) * 3 + 0] = std::min(pow(color[0], 1./gamma), 255.);   // RED
+            image[((H - i - 1) * W + j) * 3 + 1] = std::min(pow(color[1], 1./gamma), 255.);  // GREEN
+            image[((H - i - 1) * W + j) * 3 + 2] = std::min(pow(color[2], 1./gamma), 255.);  // BLUE
 
         }
     }

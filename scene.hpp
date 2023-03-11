@@ -8,7 +8,7 @@
 class Scene {
 public:
     Scene() {
-        I = 5E6;
+        I = 1E9;
         lightSource = Vector(20,30,50);
     };
 
