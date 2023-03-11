@@ -60,6 +60,12 @@ public:
         z = z * a;
         return *this;
     }
+    Vector& operator /= (const double& a) {
+        x = x / a;
+        y = y / a;
+        z = z / a;
+        return *this;
+    }
 
     double norm2() {
         return sqr(x) + sqr(y) + sqr(z);
@@ -119,4 +125,33 @@ double dot(const Vector& A, const Vector& B) {
 Vector cross(const Vector& A, const Vector& B) {
     return Vector(A[1] * B[2] - B[1] * A[2], A[2] * B[0] - B[2] * A[0], A[0] * B[1] - B[0] * A[1]);
 }
+
+Vector randomCos(const Vector& N) {
+    int tid = omp_get_thread_num();
+    double r1 = uniform(engine[tid]);
+    double r2 = uniform(engine[tid]);
+    double r = sqrt(1-r2);
+    double x = cos(2.*M_PI*r1) * r;
+    double y = sin(2.*M_PI*r1) * r;
+    double z = sqrt(r2);
+
+    Vector T1;
+    // Removing smallest compound to avoid round errors (+ limited impact)
+    if (abs(N[0]) <= abs(N[1]) && abs(N[0]) <= abs(N[2])) {
+        T1 = Vector(0, -N[2], N[1]);
+    }
+    else {
+        if (abs(N[1]) <= abs(N[2]) && abs(N[1]) <= abs(N[0])) {
+            T1 = Vector(-N[2], 0, N[0]);
+        }
+        else {
+            T1 = Vector(-N[1], N[0], 0);
+        }
+    }
+    T1.normalize();
+    Vector T2 = cross(N, T1);
+
+    return x * T1 + y * T2 + z * N;
+}
+
 #endif

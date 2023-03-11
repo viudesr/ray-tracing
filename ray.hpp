@@ -20,4 +20,8 @@ static inline Ray refractedRay(const Ray& ray, const Vector& newOrigin, const Ve
     Vector Tn = sqrt(1 - sqr(n1 / n2) * (1 - sqr(rayN))) * - N;
     return Ray(newOrigin - 0.001 * N, Tt + Tn);
 }
+
+static inline Ray randomRay(const Vector& newOrigin, Vector& N) {
+    return Ray(newOrigin + 0.001 * N, randomCos(N));
+}
 #endif

@@ -83,7 +83,7 @@ public:
                 }
             }
 
-            // Direct color calculation
+            // Direct lighting calculation
             
             Vector object2Light = lightSource - P;
             double dist2_2Light = object2Light.norm2();
@@ -101,9 +101,14 @@ public:
                 visibility = false;
             }
 
+            // Indirect lighting calculation
+
+            Vector indirect = objects[id].rho * getColor(randomRay(P, N), n_bounces - 1);
+
             // color affectation
 
             color = visibility * I * objects[id].rho / M_PI * std::max(0., dot(object2Light, N + 0.001)) / dist2_2Light;
+            color += indirect;
         }
         return color;
     }

@@ -17,6 +17,7 @@
 int main() {
     int W = 2048;
     int H = 2048;
+    int Nrays = 32;
     std::vector<unsigned char> image(W * H * 3, 0);
 
     double fov = 55 * M_PI / 180.;
@@ -46,7 +47,11 @@ int main() {
             Vector u(x, y, z);
             u.normalize();
 
-            Vector color = scene.getColor(Ray(camera,u), 5);
+            Vector color(0.,0.,0.);
+            for (int k = 0; k < Nrays; k++) {
+                color += scene.getColor(Ray(camera,u), 5);
+            }
+            color /= Nrays;
 
             image[((H - i - 1) * W + j) * 3 + 0] = std::min(pow(color[0], 1./gamma), 255.);   // RED
             image[((H - i - 1) * W + j) * 3 + 1] = std::min(pow(color[1], 1./gamma), 255.);  // GREEN
