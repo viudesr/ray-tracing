@@ -1,15 +1,27 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+#include <initializer_list>
+
+
+
 class Scene {
 public:
     Scene() {
-        I = 1E9;
-        lightSource = Vector(30,40,50);
+        I = 1E6;
+        lightSource = Vector(-10,20,40);
     };
+
+    template <class Sphere>
+    void addSphere(std::initializer_list <Sphere> list) {
+        for (const Sphere& s : list) {
+            objects.push_back(s);
+        }
+    };
+
     void addSphere(const Sphere& s) {
         objects.push_back(s);
-    };
+    }
 
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P, int& id) {
         bool intersection = false;

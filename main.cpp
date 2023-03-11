@@ -23,11 +23,15 @@ int main() {
     double gamma = 2.2;
     Vector camera(0., 0., 55.);
     Scene scene;
-    Sphere S(Vector(0.,0.,0.), 10., Vector(0.9,0.5,0.5));
-    Sphere S2(Vector(20.,0.,0.), 10., Vector(0.3,0.3,0.6));
+    Sphere S(Vector(0.,0.,-55.), 10., Vector(0.9,0.5,0.5));
+    Sphere S_bottom(Vector(0.,-1000.,0.), 990., Vector(0.6,0.3,0.6));
+    Sphere S_top(Vector(0.,1000.,0.), 970., Vector(0.1,0.3,0.9));
+    Sphere S_left(Vector(-1000.,0.,0.), 970., Vector(0.5,0.5,0.6));
+    Sphere S_right(Vector(1000.,0.,0.), 970., Vector(0.9,0.3,0.1));
+    Sphere S_back(Vector(0.,0.,-1000.), 940., Vector(0.7,0.4,0.6));
+    Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
-    scene.addSphere(S);
-    scene.addSphere(S2);
+    scene.addSphere({S, S_bottom, S_top, S_left, S_right, S_back, S_front});
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {
@@ -42,9 +46,9 @@ int main() {
 
             Vector color = scene.getColor(Ray(camera,u));
 
-            image[(i*W + j) * 3 + 0] = std::min(255., std::max(0., color[0]));   // RED
-            image[(i*W + j) * 3 + 1] = std::min(255., std::max(0., color[1]));  // GREEN
-            image[(i*W + j) * 3 + 2] = std::min(255., std::max(0., color[2]));  // BLUE
+            image[((H - i - 1) * W + j) * 3 + 0] = std::min(255., std::max(0., color[0]));   // RED
+            image[((H - i - 1) * W + j) * 3 + 1] = std::min(255., std::max(0., color[1]));  // GREEN
+            image[((H - i - 1) * W + j) * 3 + 2] = std::min(255., std::max(0., color[2]));  // BLUE
 
         }
     }
