@@ -3,7 +3,10 @@
 
 #include <initializer_list>
 
-
+static inline Ray mirrorRay(const Ray& ray, const Vector& newOrigin, const Vector& N) {
+    Vector rayN = dot(ray.dir, N) * N;
+    return Ray(newOrigin + 0.001 * N, ray.dir - 2 * rayN);
+}
 
 class Scene {
 public:
@@ -45,15 +48,26 @@ public:
         return intersection;
     }
 
-    Vector getColor(const Ray& ray) {
+    Vector getColor(const Ray& ray, int n_bounces) {
         /* Returns color vector associated to light for this ray */
+
+        Vector color(0., 0., 0.);
+
+        // Case of end of bounces
+        if (n_bounces <= 0) {
+            return color;
+        }
         double t;
         Vector N, P;
         int id;
 
-        Vector color(0., 0., 0.);
         if (this->intersect(ray, t, N, P, id)) {
-            /* Case of intersection between this ray and an object*/
+            // Case of intersection between this ray and an object
+
+            //Handling mirror case
+            if (objects[id].mirror) {
+                return getColor(mirrorRay(ray, P, N), n_bounces - 1);
+            }
 
             // Direct color calculation
             

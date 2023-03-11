@@ -4,15 +4,16 @@
 
 class Object {
 public:
-    Object(const Vector& rho) : rho(rho) {};
+    Object(const Vector& rho, bool mirror) : rho(rho), mirror(mirror) {};
 
     virtual bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const=0;
     Vector rho;
+    bool mirror;
 };
 
 class Sphere : public Object {
 public:
-    Sphere(const Vector& O, double r, const Vector& rho) : Object(rho), origin(O), radius(r) {}
+    Sphere(const Vector& O, double r, const Vector& rho, bool mirror = false) : Object(rho, mirror), origin(O), radius(r) {}
 
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const {
         double b = 2 * dot(ray.dir, ray.origin - this->origin);
