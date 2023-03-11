@@ -38,17 +38,27 @@ int main() {
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {
+        int tid = omp_get_thread_num();
         for (int j = 0; j < W; j++) {
-
-            int x = j - W / 2; // x coordinate of pixel
-            int y = i - H / 2; // y coordinate of pixel
-            int z = -W / (2 * tan(fov / 2)); // z coordinate of pixel
-
-            Vector u(x, y, z);
-            u.normalize();
 
             Vector color(0.,0.,0.);
             for (int k = 0; k < Nrays; k++) {
+                // Anti-aliasing (averaged small random variation of direction)
+                double r1 = uniform(engine[tid]);
+                double r2 = uniform(engine[tid]);
+                double r = sqrt(-2*log(r1));
+                double gx = r * cos(2 * M_PI * r2) * 0.7;
+                double gy = r * sin(2 * M_PI * r2) * 0.7;
+
+                // Ray coordinates
+                double x = j - W / 2 + gx; // x coordinate of pixel
+                double y = i - H / 2 + gy; // y coordinate of pixel
+                double z = -W / (2. * tan(fov / 2)); // z coordinate of pixel
+
+                Vector u(x, y, z);
+                u.normalize();
+
+                // Shooting ray(s)
                 color += scene.getColor(Ray(camera,u), 5);
             }
             color /= Nrays;
