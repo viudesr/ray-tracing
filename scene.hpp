@@ -8,8 +8,8 @@
 class Scene {
 public:
     Scene() {
-        I = 1E6;
-        lightSource = Vector(-10,20,40);
+        I = 5E6;
+        lightSource = Vector(20,30,50);
     };
 
     template <class Sphere>
@@ -24,6 +24,7 @@ public:
     }
 
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P, int& id) {
+        /* Checks which object has the closest intersection with this ray, and returns intersection parameters*/
         bool intersection = false;
         
         double local_t;
@@ -45,16 +46,36 @@ public:
     }
 
     Vector getColor(const Ray& ray) {
+        /* Returns color vector associated to light for this ray */
         double t;
         Vector N, P;
         int id;
 
         Vector color(0., 0., 0.);
         if (this->intersect(ray, t, N, P, id)) {
+            /* Case of intersection between this ray and an object*/
+
+            // Direct color calculation
+            
             Vector object2Light = lightSource - P;
-            double dist2Light = object2Light.norm2();
+            double dist2_2Light = object2Light.norm2();
             object2Light.normalize();
-            color = I * objects[id].rho / M_PI * std::max(0., dot(object2Light, N + 0.001)) / dist2Light;
+
+            // Visibility term computation
+
+            bool visibility = true;
+            double tprime;
+            Vector Pprime, Nprime;
+            int idprime;
+
+            bool intersectSecondaryObject = intersect(Ray(P + 0.001 * N, object2Light), tprime, Pprime, Nprime, idprime);
+            if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light)) {
+                visibility = false;
+            }
+
+            // color affectation
+
+            color = visibility * I * objects[id].rho / M_PI * std::max(0., dot(object2Light, N + 0.001)) / dist2_2Light;
         }
         return color;
     }
