@@ -3,11 +3,6 @@
 
 #include <initializer_list>
 
-static inline Ray mirrorRay(const Ray& ray, const Vector& newOrigin, const Vector& N) {
-    Vector rayN = dot(ray.dir, N) * N;
-    return Ray(newOrigin + 0.001 * N, ray.dir - 2 * rayN);
-}
-
 class Scene {
 public:
     Scene() {
@@ -66,7 +61,26 @@ public:
 
             //Handling mirror case
             if (objects[id].mirror) {
-                return getColor(mirrorRay(ray, P, N), n_bounces - 1);
+                return getColor(reflectedRay(ray, P, N), n_bounces - 1);
+            }
+
+            //Handling transparency
+            if (objects[id].transparent) {
+                double n1 = 1.;
+                double n2 = objects[id].n;
+                Vector N_temp = N;
+                if (dot(ray.dir, N) > 0) {
+                    // case where ray is leaving the sphere
+                    std::swap(n1, n2);
+                    N_temp *= -1;
+                }
+                double cos2_2 = 1 - n1 / n2 * (1 - sqr(dot(ray.dir, N_temp)));
+                if (cos2_2 >= 0) {
+                    return getColor(refractedRay(ray, P, N_temp, n1, n2), n_bounces - 1);
+                }
+                else {
+                    return getColor(reflectedRay(ray, P, N), n_bounces - 1);
+                }
             }
 
             // Direct color calculation

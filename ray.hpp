@@ -8,4 +8,16 @@ public:
     Vector origin;
     Vector dir;
 };
+
+static inline Ray reflectedRay(const Ray& ray, const Vector& newOrigin, const Vector& N) {
+    Vector rayN = dot(ray.dir, N) * N;
+    return Ray(newOrigin + 0.001 * N, ray.dir - 2 * rayN);
+}
+
+static inline Ray refractedRay(const Ray& ray, const Vector& newOrigin, const Vector& N, double n1, double n2) {
+    double rayN = dot(ray.dir, N);
+    Vector Tt = n1 / n2 * (ray.dir - rayN * N);
+    Vector Tn = sqrt(1 - sqr(n1 / n2) * (1 - sqr(rayN))) * - N;
+    return Ray(newOrigin - 0.001 * N, Tt + Tn);
+}
 #endif

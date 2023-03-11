@@ -54,6 +54,12 @@ public:
         z -= a;
         return *this;
     }
+    Vector& operator *= (const double& a) {
+        x = x * a;
+        y = y * a;
+        z = z * a;
+        return *this;
+    }
 
     double norm2() {
         return sqr(x) + sqr(y) + sqr(z);

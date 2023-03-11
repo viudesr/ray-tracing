@@ -15,8 +15,8 @@
 #include "scene.hpp"
 
 int main() {
-    int W = 1024;
-    int H = 1024;
+    int W = 2048;
+    int H = 2048;
     std::vector<unsigned char> image(W * H * 3, 0);
 
     double fov = 55 * M_PI / 180.;
@@ -25,14 +25,15 @@ int main() {
     Scene scene;
     Sphere S(Vector(0.,0.,-55.), 10., Vector(0.9,0.5,0.5));
     Sphere S2(Vector(20.,0.,-55.), 10., Vector(0.9,0.5,0.5), true);
+    Sphere S3(Vector(-20.,0.,-55.), 10., Vector(0.9,0.5,0.5), false, true);
     Sphere S_bottom(Vector(0.,-1000.,0.), 990., Vector(0.6,0.3,0.6));
     Sphere S_top(Vector(0.,1000.,0.), 970., Vector(0.1,0.3,0.9));
     Sphere S_left(Vector(-1000.,0.,0.), 970., Vector(0.5,0.5,0.6));
     Sphere S_right(Vector(1000.,0.,0.), 970., Vector(0.9,0.3,0.1));
-    Sphere S_back(Vector(0.,0.,-1000.), 940., Vector(0.7,0.4,0.6));
+    Sphere S_back(Vector(0.,0.,-1000.), 920., Vector(0.7,0.4,0.6));
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
-    scene.addSphere({S, S2, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    scene.addSphere({S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {
