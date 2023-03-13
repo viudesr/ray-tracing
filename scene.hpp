@@ -62,7 +62,7 @@ public:
             //Direct light source case
             
             if (objects[id].light) {
-                return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * Vector(1.,1.,1.);
+                return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * objects[id].rho;
             }
 
             //Handling mirror case
