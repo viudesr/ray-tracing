@@ -6,8 +6,9 @@
 class Scene {
 public:
     Scene() {
+        /*
         I = 1E9;
-        lightSource = Vector(20,30,50);
+        lightSource = Vector(20,30,50);*/
     };
 
     template <class Sphere>
@@ -90,7 +91,7 @@ public:
             }
 
             // Direct lighting calculation
-            
+            /*
             Vector object2Light = lightSource - P;
             double dist2_2Light = object2Light.norm2();
             object2Light.normalize();
@@ -106,6 +107,7 @@ public:
             if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light) && !objects[idprime].light) {
                 visibility = false;
             }
+            */
 
             // Indirect lighting calculation
 
@@ -113,14 +115,15 @@ public:
 
             // color affectation
 
-            color = visibility * I * objects[id].rho / M_PI * std::max(0., dot(object2Light, N + 0.001)) / dist2_2Light;
+            // Direct lighting color = visibility * I * objects[id].rho / M_PI * std::max(0., dot(object2Light, N + 0.001)) / dist2_2Light;
             color += indirect;
         }
         return color;
     }
-
+    
+    /*
     double I;
-    Vector lightSource;
+    Vector lightSource;*/
     std::vector<Sphere> objects;
 };
 
