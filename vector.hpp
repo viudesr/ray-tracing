@@ -70,11 +70,12 @@ public:
     double norm2() {
         return sqr(x) + sqr(y) + sqr(z);
     }
-    void normalize() {
+    Vector normalize() {
         double norm = sqrt(this->norm2());
         x /= norm;
         y /= norm;
         z /= norm;
+        return *this;
     }
 
 private:

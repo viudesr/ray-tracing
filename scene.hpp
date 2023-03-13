@@ -44,7 +44,7 @@ public:
         return intersection;
     }
 
-    Vector getColor(const Ray& ray, int n_bounces) {
+    Vector getColor(const Ray& ray, int n_bounces, bool last_bounce_diffuse) {
         /* Returns color vector associated to light for this ray */
 
         Vector color(0., 0., 0.);
@@ -61,14 +61,18 @@ public:
             // Case of intersection between this ray and an object
 
             //Direct light source case
-            
             if (objects[id].light) {
-                return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * objects[id].rho;
+                if (last_bounce_diffuse) {
+                    return Vector(0.,0.,0.);
+                }
+                else {
+                    return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * objects[id].rho;
+                }
             }
 
             //Handling mirror case
             if (objects[id].mirror) {
-                return getColor(reflectedRay(ray, P, N), n_bounces - 1);
+                return getColor(reflectedRay(ray, P, N), n_bounces - 1, false);
             }
 
             //Handling transparency
@@ -83,10 +87,10 @@ public:
                 }
                 double cos2_2 = 1 - n1 / n2 * (1 - sqr(dot(ray.dir, N_temp)));
                 if (cos2_2 >= 0) {
-                    return getColor(refractedRay(ray, P, N_temp, n1, n2), n_bounces - 1);
+                    return getColor(refractedRay(ray, P, N_temp, n1, n2), n_bounces - 1, false);
                 }
                 else {
-                    return getColor(reflectedRay(ray, P, N), n_bounces - 1);
+                    return getColor(reflectedRay(ray, P, N), n_bounces - 1, false);
                 }
             }
 
@@ -104,14 +108,49 @@ public:
             int idprime;
 
             bool intersectSecondaryObject = intersect(Ray(P + 0.001 * N, object2Light), tprime, Pprime, Nprime, idprime);
-            if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light) && !objects[idprime].light) {
+            if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light)) {
                 visibility = false;
             }
             */
 
+            // Direct lighting with spheric lights
+
+            //Iterating on lights
+            for (int idLight = 0; idLight < objects.size(); idLight++) {
+                if (objects[idLight].light) {
+                    // Drawing random point on light
+                    Vector dirLight(P - objects[idLight].origin);
+                    Vector randomDir = randomCos(dirLight);
+                    Vector randomLightP = objects[idLight].origin + randomDir * objects[idLight].radius;
+
+                    Vector object2randomLight = randomLightP - P;
+                    double dist2_2randomLight = object2randomLight.norm2();
+                    object2randomLight.normalize();
+
+                    Ray ray2randomLight(P + 0.001 * N, object2randomLight);
+
+                    Vector Pprime, Nprime;
+                    int idPrime;
+                    double tPrime;
+
+                    bool visibility = true;
+                    bool objectIntersect = intersect(ray2randomLight, tPrime, Nprime, Pprime, idPrime);
+                    if (objectIntersect && idPrime != idLight) {
+                        visibility = false;
+                    }
+                    double lightIntensity = objects[idLight].lightIntensity / (M_PI * sqr(objects[idLight].radius));
+                    Vector BRDF = objects[id].rho / M_PI;
+                    double J = 1.* dot(randomDir, - object2randomLight) / dist2_2randomLight;
+                    double random_prob = dot((P - objects[idLight].origin).normalize(), randomDir) / (M_PI * sqr(objects[idLight].radius));
+
+                    color += visibility * lightIntensity * std::max(0., dot(N, object2randomLight)) * J * BRDF / random_prob;
+                    //std::cout << BRDF[0] << "\n";
+                }
+            }
+
             // Indirect lighting calculation
 
-            Vector indirect = objects[id].rho * getColor(randomRay(P, N), n_bounces - 1);
+            Vector indirect = objects[id].rho * getColor(randomRay(P, N), n_bounces - 1, true);
 
             // color affectation
 

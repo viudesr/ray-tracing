@@ -64,7 +64,7 @@ int main() {
                 u.normalize();
 
                 // Shooting ray(s)
-                color += scene.getColor(Ray(camera,u), 5);
+                color += scene.getColor(Ray(camera,u), 5, false);
             }
             color /= Nrays;
 
