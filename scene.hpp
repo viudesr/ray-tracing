@@ -46,7 +46,6 @@ public:
 
     Vector getColor(const Ray& ray, int n_bounces, bool last_bounce_diffuse) {
         /* Returns color vector associated to light for this ray */
-
         Vector color(0., 0., 0.);
 
         // Case of end of bounces
@@ -117,7 +116,7 @@ public:
 
             //Iterating on lights
             for (int idLight = 0; idLight < objects.size(); idLight++) {
-                if (objects[idLight].light) {
+                if (objects[idLight].light && idLight != id) {
                     // Drawing random point on light
                     Vector dirLight(P - objects[idLight].origin);
                     Vector randomDir = randomCos(dirLight);
@@ -144,7 +143,6 @@ public:
                     double random_prob = dot((P - objects[idLight].origin).normalize(), randomDir) / (M_PI * sqr(objects[idLight].radius));
 
                     color += visibility * lightIntensity * std::max(0., dot(N, object2randomLight)) * J * BRDF / random_prob;
-                    //std::cout << BRDF[0] << "\n";
                 }
             }
 
