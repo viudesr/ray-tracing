@@ -24,6 +24,10 @@ int main() {
     double gamma = 2.2;
     Vector camera(0., 0., 55.);
     Scene scene;
+    Vector lightSource1(20,30,50);
+    Vector lightSource2(-20, 30, -50);
+    Sphere Slum(lightSource1, 5., Vector(1.,1.,1.), false, false, 1.4, true, 1E9);
+    Sphere Slum2(lightSource2, 5., Vector(1.,1.,1.), false, false, 1.4, true, 1E8);
     Sphere S(Vector(0.,0.,-55.), 10., Vector(0.9,0.5,0.5));
     Sphere S2(Vector(20.,0.,-55.), 10., Vector(0.9,0.5,0.5), true);
     Sphere S3(Vector(-20.,0.,-55.), 10., Vector(0.9,0.5,0.5), false, true);
@@ -34,6 +38,7 @@ int main() {
     Sphere S_back(Vector(0.,0.,-1000.), 920., Vector(0.7,0.4,0.6));
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
+    scene.addSphere({Slum, Slum2});
     scene.addSphere({S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
 
 #pragma omp parallel for

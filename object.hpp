@@ -4,17 +4,17 @@
 
 class Object {
 public:
-    Object(const Vector& rho, bool mirror, bool transparent, double n) : rho(rho), mirror(mirror), transparent(transparent), n(n) {};
+    Object(const Vector& rho, bool mirror, bool transparent, double n, bool light, double lightIntensity) : rho(rho), mirror(mirror), transparent(transparent), n(n), light(light), lightIntensity(lightIntensity) {};
 
     virtual bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const=0;
     Vector rho;
-    bool mirror, transparent;
-    double n;
+    bool mirror, transparent, light;
+    double n, lightIntensity;
 };
 
 class Sphere : public Object {
 public:
-    Sphere(const Vector& O, double r, const Vector& rho, bool mirror = false, bool transparent = false, double n = 1.4) : Object(rho, mirror, transparent, n), origin(O), radius(r) {}
+    Sphere(const Vector& O, double r, const Vector& rho, bool mirror = false, bool transparent = false, double n = 1.4, bool light = false, double lightIntensity = 0.) : Object(rho, mirror, transparent, n, light, lightIntensity), origin(O), radius(r) {}
 
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P) const {
         double b = 2 * dot(ray.dir, ray.origin - this->origin);

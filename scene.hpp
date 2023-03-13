@@ -59,6 +59,12 @@ public:
         if (this->intersect(ray, t, N, P, id)) {
             // Case of intersection between this ray and an object
 
+            //Direct light source case
+            
+            if (objects[id].light) {
+                return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * Vector(1.,1.,1.);
+            }
+
             //Handling mirror case
             if (objects[id].mirror) {
                 return getColor(reflectedRay(ray, P, N), n_bounces - 1);
@@ -97,7 +103,7 @@ public:
             int idprime;
 
             bool intersectSecondaryObject = intersect(Ray(P + 0.001 * N, object2Light), tprime, Pprime, Nprime, idprime);
-            if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light)) {
+            if (intersectSecondaryObject && (sqr(tprime) < dist2_2Light) && !objects[idprime].light) {
                 visibility = false;
             }
 
