@@ -123,6 +123,7 @@ public:
                     Vector randomDir = randomCos(dirLight);
                     Vector randomLightP = objects[idLight].origin + randomDir * objects[idLight].radius;
 
+                    // Calculating distance vectors
                     Vector object2randomLight = randomLightP - P;
                     double dist2_2randomLight = object2randomLight.norm2();
                     object2randomLight.normalize();
@@ -133,11 +134,14 @@ public:
                     int idPrime;
                     double tPrime;
 
+                    // Computing visibility term
                     bool visibility = true;
                     bool objectIntersect = intersect(ray2randomLight, tPrime, Nprime, Pprime, idPrime);
                     if (objectIntersect && idPrime != idLight) {
                         visibility = false;
                     }
+
+                    // Computing lighting
                     double lightIntensity = objects[idLight].lightIntensity / (M_PI * sqr(objects[idLight].radius));
                     Vector BRDF = objects[id].rho / M_PI;
                     double J = 1.* dot(randomDir, - object2randomLight) / dist2_2randomLight;
