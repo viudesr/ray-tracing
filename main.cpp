@@ -24,10 +24,10 @@ int main() {
     double gamma = 2.2;
     Vector camera(0., 0., 55.);
     Scene scene;
-    Vector lightSource1(20,30,20);
-    Vector lightSource2(-20, 30, -50);
-    Sphere Slum(lightSource1, 5., Vector(1.,1.,1.), false, false, 1.4, true, 1E10);
-    Sphere Slum2(lightSource2, 15., Vector(1.,1.,1.), false, false, 1.4, true, 1E10);
+    Vector lightSource1(20,25,20);
+    Vector lightSource2(-20, 25, -50);
+    Sphere Slum(lightSource1, 5., Vector(1.,1.,1.), false, false, 1.4, true, 3E8);
+    Sphere Slum2(lightSource2, 5., Vector(1.,1.,1.), false, false, 1.4, true, 3E8);
     Sphere S(Vector(0.,0.,-55.), 10., Vector(0.9,0.5,0.5));
     Sphere S2(Vector(20.,0.,-55.), 10., Vector(0.9,0.5,0.5), true);
     Sphere S3(Vector(-20.,0.,-55.), 10., Vector(0.9,0.5,0.5), false, true);

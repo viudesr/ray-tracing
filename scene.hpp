@@ -80,7 +80,7 @@ public:
                 double n2 = objects[id].n;
                 Vector N_temp = N;
                 if (dot(ray.dir, N) > 0) {
-                    // case where ray is leaving the sphere
+                    // case where ray is leaving the sphere : air is outside
                     std::swap(n1, n2);
                     N_temp *= -1;
                 }
@@ -119,6 +119,7 @@ public:
                 if (objects[idLight].light && idLight != id) {
                     // Drawing random point on light
                     Vector dirLight(P - objects[idLight].origin);
+                    dirLight.normalize();
                     Vector randomDir = randomCos(dirLight);
                     Vector randomLightP = objects[idLight].origin + randomDir * objects[idLight].radius;
 
