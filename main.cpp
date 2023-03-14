@@ -17,11 +17,14 @@
 int main() {
     int W = 1024;
     int H = 1024;
-    int Nrays = 32;
+    int Nrays = 128;
     std::vector<unsigned char> image(W * H * 3, 0);
 
     double fov = 55 * M_PI / 180.;
     double gamma = 2.2;
+    double aperture = 1.;
+    double focal_length = 110.;
+
     Vector camera(0., 0., 55.);
     Scene scene;
     Vector lightSource1(20,25,20);
@@ -31,6 +34,7 @@ int main() {
     Sphere S(Vector(0.,0.,-55.), 10., Vector(0.9,0.5,0.5));
     Sphere S2(Vector(20.,0.,-55.), 10., Vector(0.9,0.5,0.5), true);
     Sphere S3(Vector(-20.,0.,-55.), 10., Vector(0.9,0.5,0.5), false, true);
+    Sphere S4(Vector(0., 0., -20), 10., Vector(1.,1.,1.), false, true);
     Sphere S_bottom(Vector(0.,-1000.,0.), 990., Vector(0.6,0.3,0.6));
     Sphere S_top(Vector(0.,1000.,0.), 970., Vector(0.1,0.3,0.9));
     Sphere S_left(Vector(-1000.,0.,0.), 970., Vector(0.5,0.5,0.6));
@@ -39,7 +43,7 @@ int main() {
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
     scene.addSphere({Slum, Slum2});
-    scene.addSphere({S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    scene.addSphere({S, S2, S3, S4, S_bottom, S_top, S_left, S_right, S_back, S_front});
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {
@@ -49,22 +53,25 @@ int main() {
             Vector color(0.,0.,0.);
             for (int k = 0; k < Nrays; k++) {
                 // Anti-aliasing (averaged small random variation of direction)
-                double r1 = uniform(engine[tid]);
-                double r2 = uniform(engine[tid]);
-                double r = sqrt(-2*log(r1));
-                double gx = r * cos(2 * M_PI * r2) * 0.7;
-                double gy = r * sin(2 * M_PI * r2) * 0.7;
+                Vector gx = boxMuller(0.7);
 
                 // Ray coordinates
-                double x = j - W / 2 + gx; // x coordinate of pixel
-                double y = i - H / 2 + gy; // y coordinate of pixel
+                double x = j - W / 2 + 0.5 + gx[0]; // x coordinate of pixel
+                double y = i - H / 2 + 0.5 + gx[1]; // y coordinate of pixel
                 double z = -W / (2. * tan(fov / 2)); // z coordinate of pixel
 
                 Vector u(x, y, z);
                 u.normalize();
 
+                // Camera model
+                Vector dx = boxMuller(aperture);
+                Vector focusPoint = camera + focal_length * u;
+                Vector newCamera = camera + Vector(dx[0], dx[1], 0.);
+                Vector cam2fPoint = focusPoint - newCamera;
+                cam2fPoint.normalize();
+
                 // Shooting ray(s)
-                color += scene.getColor(Ray(camera,u), 5, false);
+                color += scene.getColor(Ray(newCamera, cam2fPoint), 5, false);
             }
             color /= Nrays;
 

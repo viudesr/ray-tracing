@@ -24,4 +24,15 @@ static inline Ray refractedRay(const Ray& ray, const Vector& newOrigin, const Ve
 static inline Ray randomRay(const Vector& newOrigin, Vector& N) {
     return Ray(newOrigin + 0.001 * N, randomCos(N));
 }
+
+static inline Vector boxMuller(double std) {
+    int tid = omp_get_thread_num();
+    double r1 = uniform(engine[tid]);
+    double r2 = uniform(engine[tid]);
+    double r = sqrt(-2 * log(r1));
+    double x = r * cos(2 * M_PI * r2) * std;
+    double y = r * sin(2 * M_PI * r2) * std;
+    double z = sqrt(r2);
+    return Vector(x, y, z);
+}
 #endif
