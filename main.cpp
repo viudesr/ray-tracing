@@ -17,7 +17,7 @@
 int main() {
     int W = 1024;
     int H = 1024;
-    int Nrays = 128;
+    int Nrays = 32;
     std::vector<unsigned char> image(W * H * 3, 0);
 
     double fov = 55 * M_PI / 180.;
@@ -42,8 +42,10 @@ int main() {
     Sphere S_back(Vector(0.,0.,-1000.), 920., Vector(0.7,0.4,0.6));
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
-    scene.addSphere({Slum, Slum2});
-    scene.addSphere({S, S2, S3, S4, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    Triangle T1(Vector(-10,-10,-20), Vector(50,-10,-20), Vector(0,50,-20), Vector(1.,0.,0.));
+    //scene.addSphere({Slum, Slum2});
+    scene.addSphere({Slum, Slum2, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    scene.addTriangle(T1);
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {

@@ -14,12 +14,22 @@ public:
     template <class Sphere>
     void addSphere(std::initializer_list <Sphere> list) {
         for (const Sphere& s : list) {
-            objects.push_back(s);
+            objects.push_back(&s);
+        }
+    };
+    
+    void addTriangle(std::initializer_list <Triangle> list) {
+        for (const Triangle& t : list) {
+            objects.push_back(&t);
         }
     };
 
-    void addSphere(const Sphere& s) {
-        objects.push_back(s);
+    void addSphere(Sphere& s) {
+        objects.push_back(&s);
+    }
+    
+    void addTriangle(const Triangle& t) {
+        objects.push_back(&t);
     }
 
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P, int& id) {
@@ -31,7 +41,7 @@ public:
 
         Vector local_N, local_P;
         for (int i=0; i < objects.size(); i++) {
-            if (objects[i].intersect(ray, local_t, local_N, local_P)) {
+            if (objects[i]->intersect(ray, local_t, local_N, local_P)) {
                 intersection = true;
                 if (local_t < t) {
                     t = local_t;
@@ -60,24 +70,24 @@ public:
             // Case of intersection between this ray and an object
 
             //Direct light source case
-            if (objects[id].light) {
+            if (objects[id]->light) {
                 if (last_bounce_diffuse) {
                     return Vector(0.,0.,0.);
                 }
                 else {
-                    return objects[id].lightIntensity / (4 * M_PI * sqr(objects[id].radius)) * objects[id].rho;
+                    return objects[id]->lightIntensity / (4 * M_PI * sqr(objects[id]->radius)) * objects[id]->rho;
                 }
             }
 
             //Handling mirror case
-            if (objects[id].mirror) {
+            if (objects[id]->mirror) {
                 return getColor(reflectedRay(ray, P, N), n_bounces - 1, false);
             }
 
             //Handling transparency
-            if (objects[id].transparent) {
+            if (objects[id]->transparent) {
                 double n1 = 1.;
-                double n2 = objects[id].n;
+                double n2 = objects[id]->n;
                 Vector N_temp = N;
                 if (dot(ray.dir, N) > 0) {
                     // case where ray is leaving the sphere : air is outside
@@ -116,12 +126,12 @@ public:
 
             //Iterating on lights
             for (int idLight = 0; idLight < objects.size(); idLight++) {
-                if (objects[idLight].light && idLight != id) {
+                if (objects[idLight]->light && idLight != id) {
                     // Drawing random point on light
-                    Vector dirLight(P - objects[idLight].origin);
+                    Vector dirLight(P - objects[idLight]->origin);
                     dirLight.normalize();
                     Vector randomDir = randomCos(dirLight);
-                    Vector randomLightP = objects[idLight].origin + randomDir * objects[idLight].radius;
+                    Vector randomLightP = objects[idLight]->origin + randomDir * objects[idLight]->radius;
 
                     // Calculating distance vectors
                     Vector object2randomLight = randomLightP - P;
@@ -142,10 +152,10 @@ public:
                     }
 
                     // Computing lighting
-                    double lightIntensity = objects[idLight].lightIntensity / (M_PI * sqr(objects[idLight].radius));
-                    Vector BRDF = objects[id].rho / M_PI;
+                    double lightIntensity = objects[idLight]->lightIntensity / (M_PI * sqr(objects[idLight]->radius));
+                    Vector BRDF = objects[id]->rho / M_PI;
                     double J = 1.* dot(randomDir, - object2randomLight) / dist2_2randomLight;
-                    double random_prob = dot((P - objects[idLight].origin).normalize(), randomDir) / (M_PI * sqr(objects[idLight].radius));
+                    double random_prob = dot((P - objects[idLight]->origin).normalize(), randomDir) / (M_PI * sqr(objects[idLight]->radius));
 
                     color += visibility * lightIntensity * std::max(0., dot(N, object2randomLight)) * J * BRDF / random_prob;
                 }
@@ -153,7 +163,7 @@ public:
 
             // Indirect lighting calculation
 
-            Vector indirect = objects[id].rho * getColor(randomRay(P, N), n_bounces - 1, true);
+            Vector indirect = objects[id]->rho * getColor(randomRay(P, N), n_bounces - 1, true);
 
             // color affectation
 
@@ -166,7 +176,7 @@ public:
     /*
     double I;
     Vector lightSource;*/
-    std::vector<Sphere> objects;
+    std::vector<const Object*> objects;
 };
 
 #endif
