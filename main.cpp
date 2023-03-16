@@ -54,22 +54,21 @@ int main() {
         int tid = omp_get_thread_num();
         for (int j = 0; j < W; j++) {
 
+            // Ray coordinates
+            double x = j - W / 2 + 0.5; // x coordinate of pixel
+            double y = i - H / 2 + 0.5; // y coordinate of pixel
+            double z = -W / (2. * tan(fov / 2)); // z coordinate of pixel
             Vector color(0.,0.,0.);
+
+            // Basic ray
+            Ray ray(camera, Vector(x, y, z));
+
             for (int k = 0; k < Nrays; k++) {
                 // Anti-aliasing (averaged small random variation of direction)
-                Vector gx = boxMuller(0.7);
-
-                // Ray coordinates
-                double x = j - W / 2 + 0.5 + gx[0]; // x coordinate of pixel
-                double y = i - H / 2 + 0.5 + gx[1]; // y coordinate of pixel
-                double z = -W / (2. * tan(fov / 2)); // z coordinate of pixel
-
-                Vector u(x, y, z);
-                u.normalize();
-                Ray ray(camera, u);
+                antiAliasing(ray, camera, x, y, z);
 
                 // Camera model
-                ray = cameraModel(ray, focal_length, aperture);
+                cameraModel(ray, focal_length, aperture);
 
                 // Shooting ray(s)
                 color += scene.getColor(ray, 5, false);

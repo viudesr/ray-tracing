@@ -36,12 +36,19 @@ static inline Vector boxMuller(double std) {
     return Vector(x, y, z);
 }
 
-static inline Ray cameraModel(Ray& ray, double focal_length, double aperture) {
+static inline void cameraModel(Ray& ray, double focal_length, double aperture) {
     Vector dx = boxMuller(aperture);
     Vector focusPoint = ray.origin + focal_length * ray.dir;
     Vector newOrigin = ray.origin + Vector(dx[0], dx[1], 0.);
     Vector newDir = focusPoint - newOrigin;
     newDir.normalize();
-    return Ray(newOrigin, newDir);
+    ray = Ray(newOrigin, newDir);
+}
+
+static inline void antiAliasing(Ray& ray, Vector& camera, double x, double y, double z){
+    Vector gx = boxMuller(0.7);
+    Vector u(x + gx[0], y + gx[1], z);
+    u.normalize();
+    ray = Ray(camera, u);
 }
 #endif
