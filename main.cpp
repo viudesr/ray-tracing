@@ -20,12 +20,14 @@ int main() {
     int Nrays = 32;
     std::vector<unsigned char> image(W * H * 3, 0);
 
+    // Camera settings
     double fov = 55 * M_PI / 180.;
     double gamma = 2.2;
     double aperture = 1.;
     double focal_length = 110.;
-
     Vector camera(0., 0., 55.);
+
+    // Scene setup
     Scene scene;
     Vector lightSource1(20,25,20);
     Vector lightSource2(-20, 25, -50);
@@ -42,8 +44,9 @@ int main() {
     Sphere S_back(Vector(0.,0.,-1000.), 920., Vector(0.7,0.4,0.6));
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
+    // Adding elements to scene
     Triangle T1(Vector(-10,-10,-20), Vector(50,-10,-20), Vector(0,50,-20), Vector(1.,0.,0.));
-    scene.addSphere({Slum, Slum2, S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    scene.addSphere({Slum, Slum2, S, S2, S3, S4, S_bottom, S_top, S_left, S_right, S_back, S_front});
     //scene.addTriangle(T1);
 
 #pragma omp parallel for
@@ -63,16 +66,13 @@ int main() {
 
                 Vector u(x, y, z);
                 u.normalize();
+                Ray ray(camera, u);
 
                 // Camera model
-                Vector dx = boxMuller(aperture);
-                Vector focusPoint = camera + focal_length * u;
-                Vector newCamera = camera + Vector(dx[0], dx[1], 0.);
-                Vector cam2fPoint = focusPoint - newCamera;
-                cam2fPoint.normalize();
+                ray = cameraModel(ray, focal_length, aperture);
 
                 // Shooting ray(s)
-                color += scene.getColor(Ray(newCamera, cam2fPoint), 5, false);
+                color += scene.getColor(ray, 5, false);
             }
             color /= Nrays;
 
