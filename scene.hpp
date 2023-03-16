@@ -2,6 +2,7 @@
 #define SCENE_HPP
 
 #include <initializer_list>
+#include <map>
 
 class Scene {
 public:
@@ -15,9 +16,14 @@ public:
     void addSphere(std::initializer_list <Sphere> list) {
         for (const Sphere& s : list) {
             objects.push_back(&s);
+            if (s.light) {
+                std::pair<int, const Sphere*> el(objects.size() - 1, &s);
+                lights.insert(el);
+            }
         }
     };
     
+    template<class Triangle>
     void addTriangle(std::initializer_list <Triangle> list) {
         for (const Triangle& t : list) {
             objects.push_back(&t);
@@ -26,6 +32,10 @@ public:
 
     void addSphere(Sphere& s) {
         objects.push_back(&s);
+        if (s.light) {
+            std::pair<int, const Sphere*> el(objects.size() - 1, &s);
+            lights.insert(el);
+        }
     }
     
     void addTriangle(const Triangle& t) {
@@ -75,7 +85,7 @@ public:
                     return Vector(0.,0.,0.);
                 }
                 else {
-                    return objects[id]->lightIntensity / (4 * M_PI * sqr(objects[id]->radius)) * objects[id]->rho;
+                    return lights[id]->lightIntensity / (4 * M_PI * sqr(lights[id]->radius)) * lights[id]->rho;
                 }
             }
 
@@ -128,10 +138,10 @@ public:
             for (int idLight = 0; idLight < objects.size(); idLight++) {
                 if (objects[idLight]->light && idLight != id) {
                     // Drawing random point on light
-                    Vector dirLight(P - objects[idLight]->origin);
+                    Vector dirLight(P - lights[idLight]->origin);
                     dirLight.normalize();
                     Vector randomDir = randomCos(dirLight);
-                    Vector randomLightP = objects[idLight]->origin + randomDir * objects[idLight]->radius;
+                    Vector randomLightP = lights[idLight]->origin + randomDir * lights[idLight]->radius;
 
                     // Calculating distance vectors
                     Vector object2randomLight = randomLightP - P;
@@ -152,10 +162,10 @@ public:
                     }
 
                     // Computing lighting
-                    double lightIntensity = objects[idLight]->lightIntensity / (M_PI * sqr(objects[idLight]->radius));
+                    double lightIntensity = lights[idLight]->lightIntensity / (M_PI * sqr(lights[idLight]->radius));
                     Vector BRDF = objects[id]->rho / M_PI;
                     double J = 1.* dot(randomDir, - object2randomLight) / dist2_2randomLight;
-                    double random_prob = dot((P - objects[idLight]->origin).normalize(), randomDir) / (M_PI * sqr(objects[idLight]->radius));
+                    double random_prob = dot((P - lights[idLight]->origin).normalize(), randomDir) / (M_PI * sqr(lights[idLight]->radius));
 
                     color += visibility * lightIntensity * std::max(0., dot(N, object2randomLight)) * J * BRDF / random_prob;
                 }
@@ -177,6 +187,7 @@ public:
     double I;
     Vector lightSource;*/
     std::vector<const Object*> objects;
+    std::map<int, const Sphere*> lights;
 };
 
 #endif

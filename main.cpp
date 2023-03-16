@@ -43,9 +43,8 @@ int main() {
     Sphere S_front(Vector(0.,0.,1000), 940., Vector(0.1,0.1,0.8));
 
     Triangle T1(Vector(-10,-10,-20), Vector(50,-10,-20), Vector(0,50,-20), Vector(1.,0.,0.));
-    //scene.addSphere({Slum, Slum2});
-    scene.addSphere({Slum, Slum2, S_bottom, S_top, S_left, S_right, S_back, S_front});
-    scene.addTriangle(T1);
+    scene.addSphere({Slum, Slum2, S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    //scene.addTriangle(T1);
 
 #pragma omp parallel for
     for (int i = 0; i < H; i++) {
