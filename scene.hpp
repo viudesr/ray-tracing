@@ -42,6 +42,10 @@ public:
         objects.push_back(&t);
     }
 
+    void addMesh(const TriangleMesh& m) {
+        objects.push_back(&m);
+    }
+
     bool intersect(const Ray& ray, double& t, Vector& N, Vector& P, int& id) {
         /* Checks which object has the closest intersection with this ray, and returns intersection parameters*/
         bool intersection = false;

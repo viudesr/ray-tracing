@@ -13,75 +13,71 @@ std::uniform_real_distribution<double> uniform;
 
 class Vector {
 public:
-    Vector(double x = 0, double y = 0, double z = 0) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
+    explicit Vector(double x = 0, double y = 0, double z = 0) {
+        coords[0] = x;
+        coords[1] = y;
+        coords[2] = z;
     }
 
     const double& operator [] (int i) const {
-        if (i==0) {
-            return this->x;
-        }
-        if (i==1) {
-            return this->y;
-        }
-        if (i==2) {
-            return this->z;
-        }
+        return coords[i];
     }
+
+    double& operator [] (int i) {
+        return coords[i];
+    }
+
     Vector& operator += (const Vector& A) {
-        x += A[0];
-        y += A[1];
-        z += A[2];
+        coords[0] += A[0];
+        coords[1] += A[1];
+        coords[2] += A[2];
         return *this;
     }
+
     Vector& operator += (const double& a) {
-        x += a;
-        y += a;
-        z += a;
+        coords[0] += a;
+        coords[1] += a;
+        coords[2] += a;
         return *this;
     }
     Vector& operator -= (const Vector& A) {
-        x -= A.x;
-        y -= A.y;
-        z -= A.z;
+        coords[0] -= A[0];
+        coords[1] -= A[1];
+        coords[2] -= A[2];
         return *this;
     }
     Vector& operator -= (const double& a) {
-        x -= a;
-        y -= a;
-        z -= a;
+        coords[0] -= a;
+        coords[1] -= a;
+        coords[2] -= a;
         return *this;
     }
     Vector& operator *= (const double& a) {
-        x = x * a;
-        y = y * a;
-        z = z * a;
+        coords[0] *= a;
+        coords[1] *= a;
+        coords[2] *= a;
         return *this;
     }
     Vector& operator /= (const double& a) {
-        x = x / a;
-        y = y / a;
-        z = z / a;
+        coords[0] /= a;
+        coords[1] /= a;
+        coords[2] /= a;
         return *this;
     }
 
     double norm2() {
-        return sqr(x) + sqr(y) + sqr(z);
+        return sqr(coords[0]) + sqr(coords[1]) + sqr(coords[2]);
     }
     Vector normalize() {
         double norm = sqrt(this->norm2());
-        x /= norm;
-        y /= norm;
-        z /= norm;
+        coords[0] /= norm;
+        coords[1] /= norm;
+        coords[2] /= norm;
         return *this;
     }
 
 private:
-    double x;
-    double y;
-    double z;
+    double coords[3];
 };
 
 Vector operator+(const Vector &A, const Vector& B) {
@@ -120,6 +116,9 @@ Vector operator/(const Vector &A, double b) {
 Vector operator/(double &b, const Vector &A) {
     return Vector(b / A[0], b / A[1], b / A[2]);
 }
+Vector operator/(const Vector &A, const Vector& B) {
+    return Vector(A[0] / B[0], A[1] / B[1], A[2] / B[2]);
+}
 double dot(const Vector& A, const Vector& B) {
     return A[0] * B[0] + A[1] * B[1] + A[2] * B[2];
 };
@@ -153,6 +152,22 @@ Vector randomCos(const Vector& N) {
     Vector T2 = cross(N, T1);
 
     return x * T1 + y * T2 + z * N;
+}
+
+Vector max(const Vector& A, const Vector& B) {
+    return Vector(std::max(A[0], B[0]), std::max(A[1], B[1]), std::max(A[2], B[2]));
+}
+
+double max(const Vector& A) {
+    return std::max(A[0], std::max(A[1], A[2]));
+}
+
+Vector min(const Vector& A, const Vector& B) {
+    return Vector(std::min(A[0], B[0]), std::min(A[1], B[1]), std::min(A[2], B[2]));
+}
+
+double min(const Vector& A) {
+    return std::min(A[0], std::min(A[1], A[2]));
 }
 
 #endif
