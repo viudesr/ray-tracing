@@ -61,8 +61,11 @@ public:
 class Triangle: public Object {
 public:
 	Triangle(const Vector& A, const Vector& B, const Vector& C, const Vector& rho, bool mirror=false, bool transparent=false, double n=1.4, bool light=false, double lightIntensity = 0.) : Object(rho, mirror, transparent, n, light, lightIntensity), A(A), B(B), C(C) {};
-
-	bool intersect(const Ray& r, double &t, Vector &P, Vector &N) const {
+	bool intersect(const Ray& r, double& t, Vector& P, Vector& N) const {
+		double alpha, beta, gamma;
+		return intersect(r, t, P, N, alpha, beta, gamma);
+	}
+	bool intersect(const Ray& r, double& t, Vector& P, Vector& N, double& alpha, double& beta, double& gamma) const {
 		N = cross(B - A, C - A);
 		N.normalize();
 		t = dot(C - r.origin, N) / dot(r.dir, N);
@@ -80,14 +83,14 @@ public:
 		double b11 = dot(u,w);
 		double b21 = dot(w,v);
 		double detb = b11*m22 - b21*m12;
-		double beta = detb / detm;
+		beta = detb / detm;
 
 		double g12 = b11;
 		double g22 = b21;
 		double detg = m11 * g22 - m12 * g12;
-		double gamma = detg / detm;
+		gamma = detg / detm;
 
-		double alpha = 1 - beta - gamma;
+		alpha = 1 - beta - gamma;
 		if (alpha < 0 || alpha > 1) return false;
 		if (beta < 0 || beta > 1) return false;
 		if (gamma < 0 || gamma > 1) return false;
@@ -133,6 +136,7 @@ public:
     TriangleMesh(const Vector& rho, bool mirror=false, bool transparent=false, double n=1.4) : Object(rho, mirror, transparent, n, false, 0.) {};
 	
 	void makeTri(const Triangle& tri) {
+		// Debug function for single triangle mesh
 		vertices.push_back(tri.A);
 		vertices.push_back(tri.B);
 		vertices.push_back(tri.C);
@@ -362,9 +366,9 @@ public:
 			double centerOnDim = (vertices[indices[i].vtxi][pivotDim] + vertices[indices[i].vtxj][pivotDim] + vertices[indices[i].vtxk][pivotDim]) / 3;
 			if (centerOnDim < pivotValue) {
 				pivot++;
-				std::swap(indices[i].vtxi, indices[pivot].vtxi);
-				std::swap(indices[i].vtxj, indices[pivot].vtxj);
-				std::swap(indices[i].vtxk, indices[pivot].vtxk);
+				std::swap(indices[i], indices[pivot]);
+				std::swap(indices[i], indices[pivot]);
+				std::swap(indices[i], indices[pivot]);
 			}
 		}
 
@@ -403,12 +407,16 @@ public:
 				for (int i = node->startId; i < node->endId; i++) {
 					double local_t;
 					Vector local_N, local_P;
+					double alpha, beta, gamma;
 					Triangle T(vertices[indices[i].vtxi], vertices[indices[i].vtxj], vertices[indices[i].vtxk], rho, mirror, transparent);
 					
-					if (T.intersect(ray, local_t, local_P, local_N)) {
+					if (T.intersect(ray, local_t, local_P, local_N, alpha, beta, gamma)) {
 						if (local_t < t) {
 							t = local_t;
-							N = local_N;
+							//N = local_N;
+							// Phong smoothing
+							N = alpha * normals[indices[i].ni] + beta * normals[indices[i].nj] + gamma * normals[indices[i].nk];
+							N.normalize();
 							P = local_P;
 							intersection = true;
 						}
