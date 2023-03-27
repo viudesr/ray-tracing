@@ -170,4 +170,42 @@ double min(const Vector& A) {
     return std::min(A[0], std::min(A[1], A[2]));
 }
 
+int idMax(const Vector& A) {
+    if (A[0] >= A[1]) {
+        if (A[0] >= A[2]) {
+            return 0;
+        }
+        else {
+            return 2;
+        }
+    }
+    else {
+        if (A[1] >= A[2]) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+}
+
+int idMin(const Vector& A) {
+    if (A[0] <= A[1]) {
+        if (A[0] <= A[2]) {
+            return 0;
+        }
+        else {
+            return 2;
+        }
+    }
+    else {
+        if (A[1] <= A[2]) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+}
+
 #endif

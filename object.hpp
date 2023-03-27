@@ -2,6 +2,7 @@
 #define OBJECT_HPP
 #include "ray.hpp"
 #include <cstring>
+#include <list>
 
 class Object {
 public:
@@ -109,13 +110,22 @@ public :
 		Vector min_t = min(bmax_t, bmin_t);
 		Vector max_t = max(bmax_t, bmin_t);
 
-		if (min(max_t) > max(min_t)) {
+		if (min(max_t) > max(min_t) && min(max_t) >= 0) {
 			return true;
 		}
 		return false;
 	}
 
 	Vector bmin, bmax;
+};
+
+class BVH {
+public:
+	BVH() {};
+
+	int startId, endId;
+	BoundingBox bBox;
+	BVH *leftChild, *rightChild;
 };
 
 class TriangleMesh : public Object {
@@ -313,17 +323,111 @@ public:
         }
     }
 
-    void compute_bbox() {
-		bBox.bmax = vertices[0];
-		bBox.bmin = vertices[0];
-        for (int i = 1; i < vertices.size(); i++) {
-				bBox.bmax = max(bBox.bmax, vertices[i]);
-				bBox.bmin = min(bBox.bmin, vertices[i]);
+    BoundingBox computeBBox(int startId, int endId) {
+
+		BoundingBox local_bBox;
+
+		local_bBox.bmax = vertices[indices[startId].vtxi];
+		local_bBox.bmin = vertices[indices[startId].vtxi];
+		
+        for (int i = startId; i < endId; i++) {
+			local_bBox.bmax = max(local_bBox.bmax, vertices[indices[i].vtxi]);
+			local_bBox.bmin = min(local_bBox.bmin, vertices[indices[i].vtxi]);
+			local_bBox.bmax = max(local_bBox.bmax, vertices[indices[i].vtxj]);
+			local_bBox.bmin = min(local_bBox.bmin, vertices[indices[i].vtxj]);
+			local_bBox.bmax = max(local_bBox.bmax, vertices[indices[i].vtxk]);
+			local_bBox.bmin = min(local_bBox.bmin, vertices[indices[i].vtxk]);
 		}
+
+		return local_bBox;
     }
 
+	void computeBVH(BVH* node, int startId, int endId) {
+
+		node->bBox = computeBBox(startId, endId);
+		node->startId = startId;
+		node->endId = endId;
+		node->leftChild = NULL;
+		node->rightChild = NULL;
+
+		int pivot = startId - 1;
+
+		// biggest bbox dimension for split
+		int pivotDim = idMax(node->bBox.bmax - node->bBox.bmin);
+
+		// middle value for this dimension
+		double pivotValue = (node->bBox.bmin[pivotDim] + node->bBox.bmax[pivotDim]) / 2;
+
+		for (int i = startId; i < endId; i++) {
+			double centerOnDim = (vertices[indices[i].vtxi][pivotDim] + vertices[indices[i].vtxj][pivotDim] + vertices[indices[i].vtxk][pivotDim]) / 3;
+			if (centerOnDim < pivotValue) {
+				pivot++;
+				std::swap(indices[i].vtxi, indices[pivot].vtxi);
+				std::swap(indices[i].vtxj, indices[pivot].vtxj);
+				std::swap(indices[i].vtxk, indices[pivot].vtxk);
+			}
+		}
+
+		if (pivot < startId || pivot >= endId - 1 || endId - startId < 2) {
+			return;
+		}
+
+		node->leftChild = new BVH();
+		computeBVH(node->leftChild, startId, pivot + 1);
+
+		node->rightChild = new BVH();
+		computeBVH(node->rightChild, pivot + 1, endId);
+
+	}
+
+	void computeBVH() {
+		computeBVH(&bvh, 0, indices.size());
+	}
+
     bool intersect(const Ray& ray, double &t, Vector &N, Vector &P) const {
-        if (!bBox.intersect(ray)) return false;
+
+		if (!bvh.bBox.intersect(ray)) return false;
+
+		std::list<const BVH*> bvh_list;
+		bvh_list.push_front(&bvh);
+
+		t = std::numeric_limits<double>::max();
+		bool intersection = false;
+
+		while (!bvh_list.empty()) {
+
+			const BVH* node = bvh_list.front();
+			bvh_list.pop_front();
+
+			if (!node->leftChild) {
+				for (int i = node->startId; i < node->endId; i++) {
+					double local_t;
+					Vector local_N, local_P;
+					Triangle T(vertices[indices[i].vtxi], vertices[indices[i].vtxj], vertices[indices[i].vtxk], rho, mirror, transparent);
+					
+					if (T.intersect(ray, local_t, local_P, local_N)) {
+						if (local_t < t) {
+							t = local_t;
+							N = local_N;
+							P = local_P;
+							intersection = true;
+						}
+					}
+				}
+			}
+			else {
+				if (node->leftChild && node->leftChild->bBox.intersect(ray)) {
+					bvh_list.push_back(node->leftChild);
+				}
+				if (node->rightChild && node->rightChild->bBox.intersect(ray)) {
+					bvh_list.push_back(node->rightChild);
+				}
+			}
+		}
+		return intersection;
+		/*
+		// Only one BBox intersect
+        if (!bbox.intersect(ray)) return false;
         t = std::numeric_limits<double>::max();
 		bool intersection = false;
 
@@ -342,6 +446,7 @@ public:
 			}
 		}
 		return intersection;
+		*/
     }
     std::vector<TriangleIndices> indices;
 	std::vector<Vector> vertices;
@@ -349,7 +454,7 @@ public:
 	std::vector<Vector> uvs;
 	std::vector<Vector> vertexcolors;
 
-    BoundingBox bBox;
+    BVH bvh;
 };
 
 #endif

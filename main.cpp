@@ -17,14 +17,14 @@
 int main() {
     int W = 512;
     int H = 512;
-    int Nrays = 8;
+    int Nrays = 32;
     std::vector<unsigned char> image(W * H * 3, 0);
 
     // Camera settings
     double fov = 55 * M_PI / 180.;
     double gamma = 2.2;
     double aperture = 1.;
-    double focal_length = 110.;
+    double focal_length = 95.;
     Vector camera(0., 0., 55.);
 
     // Scene setup
@@ -46,14 +46,15 @@ int main() {
 
     TriangleMesh mesh(Vector(1.,0.,0.));
     mesh.readOBJ("models/cat.obj");
-    mesh.transform(0.5, Vector(0.,0.,20.));
+    mesh.transform(0.5, Vector(0.,-10.,10.));
+    mesh.computeBVH();
 
     Triangle T1(Vector(-10,-10,-20), Vector(50,-10,-20), Vector(0,50,-19), Vector(1.,0.,0.));
     //mesh.makeTri(T1);
-    mesh.compute_bbox();
+    //mesh.computeBVH();
     
     // Adding objects to scene
-    scene.addSphere({Slum, Slum2, S_bottom, S_top, S_left, S_right, S_back, S_front});
+    scene.addSphere({Slum, Slum2, S, S2, S3, S_bottom, S_top, S_left, S_right, S_back, S_front});
     scene.addMesh(mesh);
     //scene.addTriangle(T1);
 
